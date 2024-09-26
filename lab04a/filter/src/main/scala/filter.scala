@@ -20,20 +20,15 @@ object filter {
       .add("timestamp", LongType)
 
     spark.conf.set("spark.sql.session.timeZone", "UTC")
-    val offset = "earliest"
+    // val offset = "earliest"
     val topicName = "lab04_input_data"
 
     val rawData = spark.read
       .format("kafka")
       .option("kafka.bootstrap.servers", "spark-master-1:6667")
       .option("subscribe", topicName)
-      .option("startingOffsets",
-        if(offset.contains("earliest"))
-          offset
-        else {
-          "{\"" + topicName + "\":{\"0\":" + offset + "}}"
-        }
-      )
+      .option("startingOffsets", "earliest")
+      .option("endingOffsets", "latest")
       .load()
 
     val transformedData = rawData.select(
