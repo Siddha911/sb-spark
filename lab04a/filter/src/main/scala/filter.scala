@@ -11,6 +11,10 @@ object filter {
       .appName("lab04a")
       .getOrCreate()
 
+    val param1 : String = spark.sparkContext.getConf.get("topic_name")
+    val param2 : String = spark.sparkContext.getConf.get("offset")
+    val param3 : String = spark.sparkContext.getConf.get("output_dir_prefix")
+
     val schema = new StructType()
       .add("event_type", StringType)
       .add("category", StringType)
@@ -20,15 +24,21 @@ object filter {
       .add("timestamp", LongType)
 
     spark.conf.set("spark.sql.session.timeZone", "UTC")
-    // val offset = "earliest"
-    val topicName = "lab04_input_data"
+     val offset = "earliest"
+     val topicName = "lab04_input_data"
+//    val parameter1: String = spark.sparkContext.getConf.get("параметр1")
 
     val rawData = spark.read
       .format("kafka")
       .option("kafka.bootstrap.servers", "spark-master-1:6667")
       .option("subscribe", topicName)
-      .option("startingOffsets", "earliest")
-      .option("endingOffsets", "latest")
+      .option("startingOffsets",
+        if(offset.contains("earliest"))
+          offset
+        else {
+          "{\"" + topicName + "\":{\"0\":" + offset + "}}"
+        }
+      )
       .load()
 
     val transformedData = rawData.select(
