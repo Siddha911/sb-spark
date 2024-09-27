@@ -41,6 +41,7 @@ object filter {
           "{\"" + topic_name + "\":{\"0\":" + offset + "}}"
         }
       )
+      .option("endingOffsets", "latest")
       .load()
 
     val transformedData = rawData.select(
