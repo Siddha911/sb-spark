@@ -11,9 +11,9 @@ object filter {
       .appName("lab04a")
       .getOrCreate()
 
-    val param1 : String = spark.sparkContext.getConf.get("topic_name")
-    val param2 : String = spark.sparkContext.getConf.get("offset")
-    val param3 : String = spark.sparkContext.getConf.get("output_dir_prefix")
+    val param1 : String = spark.sparkContext.getConf.get("spark.filter.topic_name")
+    val param2 : String = spark.sparkContext.getConf.get("spark.filter.offset")
+    val param3 : String = spark.sparkContext.getConf.get("spark.filter.output_dir_prefix")
 
     val schema = new StructType()
       .add("event_type", StringType)
