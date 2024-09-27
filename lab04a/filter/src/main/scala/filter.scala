@@ -11,9 +11,9 @@ object filter {
       .appName("lab04a")
       .getOrCreate()
 
-    val param1 : String = spark.sparkContext.getConf.get("spark.filter.topic_name")
-    val param2 : String = spark.sparkContext.getConf.get("spark.filter.offset")
-    val param3 : String = spark.sparkContext.getConf.get("spark.filter.output_dir_prefix")
+    val topic_name : String = spark.sparkContext.getConf.get("spark.filter.topic_name")
+    val offset : String = spark.sparkContext.getConf.get("spark.filter.offset")
+    val output_dir : String = spark.sparkContext.getConf.get("spark.filter.output_dir_prefix")
 
     val schema = new StructType()
       .add("event_type", StringType)
@@ -24,9 +24,9 @@ object filter {
       .add("timestamp", LongType)
 
     spark.conf.set("spark.sql.session.timeZone", "UTC")
-    val offset = "earliest"
-    val topic_name = "lab04_input_data"
-    val output_dir_prefix = "/user/kirill.sitnikov/visits"
+//    val offset = "earliest"
+//    val topic_name = "lab04_input_data"
+//    val output_dir_prefix = "/user/kirill.sitnikov/visits"
 
 
 
@@ -74,12 +74,12 @@ object filter {
     viewDF.write
       .partitionBy("p_date")
       .mode("overwrite")
-      .json(output_dir_prefix + "/view")
+      .json(output_dir) // + "/view"
 
     buyDF.write
       .partitionBy("p_date")
       .mode("overwrite")
-      .json(output_dir_prefix + "/buy")
+      .json(output_dir) // + "/buy"
 
   }
 
