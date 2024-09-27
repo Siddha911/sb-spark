@@ -24,11 +24,6 @@ object filter {
       .add("timestamp", LongType)
 
     spark.conf.set("spark.sql.session.timeZone", "UTC")
-//    val offset = "earliest"
-//    val topic_name = "lab04_input_data"
-//    val output_dir_prefix = "/user/kirill.sitnikov/visits"
-
-
 
     val rawData = spark.read
       .format("kafka")
@@ -69,18 +64,20 @@ object filter {
       .withColumn("p_date", date_format(from_unixtime(col("timestamp") / 1000), "yyyMMdd"))
 
     val viewDF = logsWithDate.filter(col("event_type") === "view")
-
     val buyDF = logsWithDate.filter(col("event_type") === "buy")
+
+    val viewPath = if (output_dir == "visits") output_dir + "/view" else output_dir
+    val buyPath = if (output_dir == "visits") output_dir + "/buy" else output_dir
 
     viewDF.write
       .partitionBy("p_date")
       .mode("overwrite")
-      .json(output_dir) // + "/view"
+      .json(viewPath)
 
     buyDF.write
       .partitionBy("p_date")
       .mode("overwrite")
-      .json(output_dir) // + "/buy"
+      .json(buyPath)
 
   }
 
