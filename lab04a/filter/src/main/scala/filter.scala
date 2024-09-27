@@ -24,19 +24,21 @@ object filter {
       .add("timestamp", LongType)
 
     spark.conf.set("spark.sql.session.timeZone", "UTC")
-     val offset = "earliest"
-     val topicName = "lab04_input_data"
-//    val parameter1: String = spark.sparkContext.getConf.get("параметр1")
+    val offset = "earliest"
+    val topic_name = "lab04_input_data"
+    val output_dir_prefix = "/user/kirill.sitnikov/visits"
+
+
 
     val rawData = spark.read
       .format("kafka")
       .option("kafka.bootstrap.servers", "spark-master-1:6667")
-      .option("subscribe", topicName)
+      .option("subscribe", topic_name)
       .option("startingOffsets",
         if(offset.contains("earliest"))
           offset
         else {
-          "{\"" + topicName + "\":{\"0\":" + offset + "}}"
+          "{\"" + topic_name + "\":{\"0\":" + offset + "}}"
         }
       )
       .load()
@@ -72,12 +74,12 @@ object filter {
     viewDF.write
       .partitionBy("p_date")
       .mode("overwrite")
-      .json("/user/kirill.sitnikov/visits/view")
+      .json(output_dir_prefix + "/view")
 
     buyDF.write
       .partitionBy("p_date")
       .mode("overwrite")
-      .json("/user/kirill.sitnikov/visits/buy")
+      .json(output_dir_prefix + "/buy")
 
   }
 
