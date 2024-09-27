@@ -13,7 +13,7 @@ object filter {
 
     val topic_name : String = spark.sparkContext.getConf.get("spark.filter.topic_name")
     val offset : String = spark.sparkContext.getConf.get("spark.filter.offset")
-    val output_dir : String = spark.sparkContext.getConf.get("spark.filter.output_dir_prefix")
+    val output_dir : String = spark.sparkContext.getConf.get("spark.filter.output_dir_prefix", "visits")
 
     val schema = new StructType()
       .add("event_type", StringType)
@@ -66,18 +66,18 @@ object filter {
     val viewDF = logsWithDate.filter(col("event_type") === "view")
     val buyDF = logsWithDate.filter(col("event_type") === "buy")
 
-    val viewPath = if (output_dir == "visits") output_dir + "/view" else output_dir
-    val buyPath = if (output_dir == "visits") output_dir + "/buy" else output_dir
+//    val viewPath = if (output_dir == "visits") output_dir + "/view" else output_dir
+//    val buyPath = if (output_dir == "visits") output_dir + "/buy" else output_dir
 
     viewDF.write
       .partitionBy("p_date")
       .mode("overwrite")
-      .json(viewPath)
+      .json(output_dir)
 
     buyDF.write
       .partitionBy("p_date")
       .mode("overwrite")
-      .json(buyPath)
+      .json(output_dir)
 
   }
 
