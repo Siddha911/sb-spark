@@ -23,11 +23,12 @@ object users_items {
       val usersViews = spark.read.json(input_dir + "/view")
 
       val allUsersEvents = usersBuys.union(usersViews)
+      val notNullUsersEvents = allUsersEvents.filter(col("uid").isNotNull)
 
       val stg_output_dir_subdir = allUsersEvents.select(max("p_date").cast("string"))
       val output_dir_subdir = stg_output_dir_subdir.collect()(0).getString(0)
 
-      val allUsersBuys = allUsersEvents.filter(
+      val allUsersBuys = notNullUsersEvents.filter(
           col("event_type") === "buy")
         .groupBy(
           col("uid"), normalizedItemId.alias("buy_item_id")
@@ -35,7 +36,7 @@ object users_items {
           count("*").alias("buy_count")
         )
 
-      val allUsersViews = allUsersEvents.filter(
+      val allUsersViews = notNullUsersEvents.filter(
           col("event_type") === "view")
         .groupBy(
           col("uid"), normalizedItemId.alias("view_item_id")
@@ -76,12 +77,22 @@ object users_items {
       val finalMatrix = renamedPivotView.join(
         renamedPivotBuy,
         Seq("uid"),
-        "outer"
-      ).na.fill(0).filter(col("uid").isNotNull)
+        "left"
+      ).na.fill(0)
 
-      finalMatrix.write
-        .mode("overwrite")
-        .parquet(output_dir + s"/$output_dir_subdir")
+       finalMatrix.write
+           .mode("overwrite")
+           .parquet(output_dir + s"/$output_dir_subdir")
+
+//      renamedPivotView.write
+//        .option("mergeSchema", "true")
+//        .mode("append")
+//        .parquet(output_dir + s"/$output_dir_subdir")
+//
+//      renamedPivotBuy.write
+//        .option("mergeSchema", "true")
+//        .mode("append")
+//        .parquet(output_dir + s"/$output_dir_subdir")
 
     } else if (update == "1") {
       val usersBuys = spark.read.json(input_dir + "/buy")
