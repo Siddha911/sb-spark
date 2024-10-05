@@ -14,9 +14,9 @@ object users_items {
 
     val normalizedItemId = regexp_replace(regexp_replace(lower(col("item_id")), "-", "_"), " ", "_")
 
-    val input_dir: String = spark.sparkContext.getConf.get("spark.filter.input_dir")
-    val update: String = spark.sparkContext.getConf.get("spark.filter.update", "1")
-    val output_dir: String = spark.sparkContext.getConf.get("spark.filter.output_dir")
+    val input_dir: String = spark.sparkContext.getConf.get("spark.users_items.input_dir")
+    val update: String = spark.sparkContext.getConf.get("spark.users_items.update", "1")
+    val output_dir: String = spark.sparkContext.getConf.get("spark.users_items.output_dir")
 
     if (update == "0") {
       val usersBuys = spark.read.json(input_dir + "/buy")
