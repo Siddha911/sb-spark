@@ -25,7 +25,7 @@ object users_items {
       val allUsersEvents = usersBuys.union(usersViews)
       val notNullUsersEvents = allUsersEvents.filter(col("uid").isNotNull)
 
-      val stg_output_dir_subdir = allUsersEvents.select(max("p_date").cast("string"))
+      val stg_output_dir_subdir = notNullUsersEvents.select(max("p_date").cast("string"))
       val output_dir_subdir = stg_output_dir_subdir.collect()(0).getString(0)
 
       val allUsersBuys = notNullUsersEvents.filter(
@@ -44,20 +44,20 @@ object users_items {
           count("*").alias("view_count")
         )
 
-      val userItemMatrix = allUsersBuys.join(
-        allUsersViews,
-        Seq("uid"),
-        "outer"
-      ).na.fill(0)
+//      val userItemMatrix = allUsersBuys.join(
+//        allUsersViews,
+//        Seq("uid"),
+//        "outer"
+//      ).na.fill(0)
 
-      val pivotBuy = userItemMatrix
+      val pivotBuy = allUsersBuys
         .groupBy("uid")
         .pivot("buy_item_id")
         .sum("buy_count")
         .na.fill(0)
         .drop("null")
 
-      val pivotView = userItemMatrix
+      val pivotView = allUsersViews
         .groupBy("uid")
         .pivot("view_item_id")
         .sum("view_count")
@@ -77,7 +77,7 @@ object users_items {
       val finalMatrix = renamedPivotView.join(
         renamedPivotBuy,
         Seq("uid"),
-        "left"
+        "outer"
       ).na.fill(0)
 
        finalMatrix.write
@@ -120,20 +120,20 @@ object users_items {
           count("*").alias("view_count")
         )
 
-      val userItemMatrix = allUsersBuys.join(
-        allUsersViews,
-        Seq("uid"),
-        "outer"
-      ).na.fill(0)
+//      val userItemMatrix = allUsersBuys.join(
+//        allUsersViews,
+//        Seq("uid"),
+//        "outer"
+//      ).na.fill(0)
 
-      val pivotBuy = userItemMatrix
+      val pivotBuy = allUsersBuys
         .groupBy("uid")
         .pivot("buy_item_id")
         .sum("buy_count")
         .na.fill(0)
         .drop("null")
 
-      val pivotView = userItemMatrix
+      val pivotView = allUsersViews
         .groupBy("uid")
         .pivot("view_item_id")
         .sum("view_count")
@@ -153,7 +153,7 @@ object users_items {
       val finalMatrix = renamedPivotView.join(
         renamedPivotBuy,
         Seq("uid"),
-        "left"
+        "outer"
       ).na.fill(0)
 
       val lagMatrix = spark.read.option("mergeSchema", "true").parquet("/user/kirill.sitnikov/users-items/20200429")
