@@ -99,11 +99,12 @@ object users_items {
       val usersViews = spark.read.json(input_dir + "/view")
 
       val allUsersEvents = usersBuys.union(usersViews)
+      val notNullUsersEvents = allUsersEvents.filter(col("uid").isNotNull)
 
       val stg_output_dir_subdir = allUsersEvents.select(max("p_date").cast("string"))
       val output_dir_subdir = stg_output_dir_subdir.collect()(0).getString(0)
 
-      val allUsersBuys = allUsersEvents.filter(
+      val allUsersBuys = notNullUsersEvents.filter(
           col("event_type") === "buy")
         .groupBy(
           col("uid"), normalizedItemId.alias("buy_item_id")
@@ -111,7 +112,7 @@ object users_items {
           count("*").alias("buy_count")
         )
 
-      val allUsersViews = allUsersEvents.filter(
+      val allUsersViews = notNullUsersEvents.filter(
           col("event_type") === "view")
         .groupBy(
           col("uid"), normalizedItemId.alias("view_item_id")
@@ -152,8 +153,8 @@ object users_items {
       val finalMatrix = renamedPivotView.join(
         renamedPivotBuy,
         Seq("uid"),
-        "outer"
-      ).na.fill(0).filter(col("uid").isNotNull)
+        "left"
+      ).na.fill(0)
 
       val lagMatrix = spark.read.option("mergeSchema", "true").parquet("/user/kirill.sitnikov/users-items/20200429")
 
