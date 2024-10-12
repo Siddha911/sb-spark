@@ -20,6 +20,7 @@ object agg {
         .format("kafka")
         .outputMode(mode)
         .trigger(Trigger.ProcessingTime("10 seconds"))
+        .option("kafka.bootstrap.servers", "spark-master-1:6667")
         .option("topic", "kirill_sitnikov_lab04b_out")
         .option("checkpointLocation", s"/tmp/kirill_sitnikov_lab04b/$chkName")
         .option("truncate", "false")
