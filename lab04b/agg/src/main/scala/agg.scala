@@ -12,6 +12,8 @@ object agg {
       .appName("lab04b")
       .getOrCreate()
 
+    spark.conf.set("spark.sql.session.timeZone", "UTC")
+
     def sinkWithCheckpoint(chkName: String, mode: String, df: DataFrame) = {
       df
         .writeStream
@@ -44,16 +46,19 @@ object agg {
       .format("kafka")
       .options(kafkaParams)
       .load
+      .select(
+        from_json(col("value").cast(StringType), schema).as("data")
+      )
 //      .select(col("value").cast("string").alias("value"))
 //      .select(from_json(col("value"), schema).alias("data"))
-//      .select(
-//        col("data.event_type").alias("event_type"),
-//        col("data.category").alias("category"),
-//        col("data.item_id").alias("item_id"),
-//        col("data.item_price").alias("item_price"),
-//        col("data.uid").alias("uid"),
-//        col("data.timestamp").alias("timestamp").cast("timestamp")
-//      )
+      .select(
+        col("data.event_type").alias("event_type"),
+        col("data.category").alias("category"),
+        col("data.item_id").alias("item_id"),
+        col("data.item_price").alias("item_price"),
+        col("data.uid").alias("uid"),
+        col("data.timestamp").alias("timestamp").cast("timestamp")
+      )
 
     val groupedSdf = sdf
 //      .withWatermark("timestamp", "1 hours")
@@ -73,8 +78,8 @@ object agg {
 
     val sink = sinkWithCheckpoint("check", "update", groupedSdf)
     val sq = sink.start
-
-    sq.awaitTermination
+//
+//    sq.awaitTermination
 
   }
 
