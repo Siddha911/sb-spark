@@ -76,10 +76,9 @@ object agg {
         (col("revenue") / col("purchases")).alias("aov")
       )
 
-    val sink = sinkWithCheckpoint("check", "update", groupedSdf)
-    val sq = sink.start
-//
-//    sq.awaitTermination
+    val sink = sinkWithCheckpoint("check", "update", groupedSdf).start
+
+    sink.awaitTermination
 
   }
 
