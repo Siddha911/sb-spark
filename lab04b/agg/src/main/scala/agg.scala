@@ -28,8 +28,8 @@ object agg {
 
     val kafkaParams = Map(
       "kafka.bootstrap.servers" -> "spark-master-1:6667",
-      "subscribe" -> "kirill_sitnikov" // kirill_sitnikov
-//      "startingOffsets" -> "earliest"
+      "subscribe" -> "kirill_sitnikov", // kirill_sitnikov
+      "startingOffsets" -> "earliest"
 //      "maxOffsetsPerTrigger" -> "1000"
     )
 
