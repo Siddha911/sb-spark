@@ -44,11 +44,18 @@ object agg {
       .format("kafka")
       .options(kafkaParams)
       .load
-      . selectExpr("CAST(value AS STRING)")
+      .selectExpr("CAST(value AS STRING)")
       .select(from_json(col("value"), schema).as("data"))
-      .select("data.*")
+      .select(
+        col("data.event_type").alias("event_type"),
+        col("data.category").alias("category"),
+        col("data.item_id").alias("item_id"),
+        col("data.item_price").alias("item_price"),
+        col("data.uid").alias("uid"),
+        col("data.timestamp").alias("timestamp").cast("timestamp")
+      )
 
-//    val serialSdf = sdf.select(
+    //    val serialSdf = sdf.select(
 //      col("value").cast("string"),
 //      col("topic"),
 //      col("partition"),
