@@ -44,8 +44,8 @@ object agg {
       .format("kafka")
       .options(kafkaParams)
       .load
-      .selectExpr("CAST(value AS STRING)")
-      .select(from_json(col("value"), schema).as("data"))
+      .select(col("value").cast("string")).alias("value")
+      .select(from_json(col("value"), schema).alias("data"))
       .select(
         col("data.event_type").alias("event_type"),
         col("data.category").alias("category"),
