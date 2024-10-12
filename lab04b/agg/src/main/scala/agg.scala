@@ -76,7 +76,7 @@ object agg {
 //    )
 
     val groupedSdf = sdf
-      .withWatermark("timestamp", "1 hours")
+//      .withWatermark("timestamp", "1 hours")
       .groupBy(window(col("timestamp"), "1 hours"))
       .agg(sum(when(col("event_type") === "buy", col("item_price")).otherwise(0)).alias("revenue"),
         count(col("uid").isNotNull).alias("visitors"),
