@@ -60,9 +60,6 @@ object agg {
         col("data.uid").alias("uid"),
         col("data.timestamp").alias("timestamp").cast("timestamp")
       )
-
-    val groupedSdf = sdf
-//      .withWatermark("timestamp", "1 hours")
       .groupBy(window(col("timestamp"), "1 hours"))
       .agg(sum(when(col("event_type") === "buy", col("item_price")).otherwise(0)).alias("revenue"),
         count(col("uid").isNotNull).alias("visitors"),
@@ -77,7 +74,23 @@ object agg {
         (col("revenue") / col("purchases")).alias("aov")
       )
 
-    val sink = sinkWithCheckpoint("check", "update", groupedSdf).start
+//    val groupedSdf = sdf
+////      .withWatermark("timestamp", "1 hours")
+//      .groupBy(window(col("timestamp"), "1 hours"))
+//      .agg(sum(when(col("event_type") === "buy", col("item_price")).otherwise(0)).alias("revenue"),
+//        count(col("uid").isNotNull).alias("visitors"),
+//        count(col("event_type") === "buy").alias("purchases")
+//      )
+//      .select(
+//        (col("window.start").cast("long") / 1000).alias("start_ts"),
+//        (col("window.end").cast("long") / 1000).alias("end_ts"),
+//        col("revenue"),
+//        col("visitors"),
+//        col("purchases"),
+//        (col("revenue") / col("purchases")).alias("aov")
+//      )
+
+    val sink = sinkWithCheckpoint("check", "update", sdf).start
 
     sink.awaitTermination
 
