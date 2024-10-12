@@ -14,18 +14,18 @@ object agg {
 
     spark.conf.set("spark.sql.session.timeZone", "UTC")
 
-    def sinkWithCheckpoint(chkName: String, mode: String, df: DataFrame) = {
-      df
-        .writeStream
-        .format("kafka")
-        .outputMode(mode)
-        .trigger(Trigger.ProcessingTime("10 seconds"))
-        .option("kafka.bootstrap.servers", "spark-master-1:6667")
-        .option("topic", "kirill_sitnikov_lab04b_out")
-        .option("checkpointLocation", s"/tmp/kirill_sitnikov_lab04b/$chkName")
-        .option("truncate", "false")
-//        .option("numRows", "20")
-    }
+//    def sinkWithCheckpoint(chkName: String, mode: String, df: DataFrame) = {
+//      df
+//        .writeStream
+//        .format("kafka")
+//        .outputMode(mode)
+//        .trigger(Trigger.ProcessingTime("10 seconds"))
+//        .option("kafka.bootstrap.servers", "spark-master-1:6667")
+//        .option("topic", "kirill_sitnikov_lab04b_out")
+//        .option("checkpointLocation", s"/tmp/kirill_sitnikov_lab04b/$chkName")
+//        .option("truncate", "false")
+////        .option("numRows", "20")
+//    }
 
     val kafkaParams = Map(
       "kafka.bootstrap.servers" -> "spark-master-1:6667",
@@ -90,9 +90,18 @@ object agg {
 //        (col("revenue") / col("purchases")).alias("aov")
 //      )
 
-    val sink = sinkWithCheckpoint("check", "update", sdf).start
+    val resSdf = sdf
+      .writeStream
+      .format("kafka")
+      .outputMode("update")
+      .trigger(Trigger.ProcessingTime("10 seconds"))
+      .option("kafka.bootstrap.servers", "spark-master-1:6667")
+      .option("topic", "kirill_sitnikov_lab04b_out")
+      .option("checkpointLocation", "/tmp/kirill_sitnikov_lab04b/checkpoints")
+      .option("truncate", "false")
+      .start
 
-    sink.awaitTermination
+    resSdf.awaitTermination
 
   }
 
