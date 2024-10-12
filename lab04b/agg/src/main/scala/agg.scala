@@ -44,7 +44,7 @@ object agg {
       .format("kafka")
       .options(kafkaParams)
       .load
-      .select(col("value").cast("string")).alias("value")
+      .select(col("value").cast("string").alias("value"))
       .select(from_json(col("value"), schema).alias("data"))
       .select(
         col("data.event_type").alias("event_type"),
@@ -54,26 +54,6 @@ object agg {
         col("data.uid").alias("uid"),
         col("data.timestamp").alias("timestamp").cast("timestamp")
       )
-
-    //    val serialSdf = sdf.select(
-//      col("value").cast("string"),
-//      col("topic"),
-//      col("partition"),
-//      col("offset"),
-//      col("timestamp"),
-//      col("timestampType")
-//    )
-
-//    val parsedSdf = sdf.withColumn(
-//      "value_ext", from_json(col("value"), schema)
-//    ).select(
-//      col("value_ext.event_type").alias("event_type"),
-//      col("value_ext.category").alias("category"),
-//      col("value_ext.item_id").alias("item_id"),
-//      col("value_ext.item_price").alias("item_price"),
-//      col("value_ext.uid").alias("uid"),
-//      col("value_ext.timestamp").alias("timestamp").cast("timestamp")
-//    )
 
     val groupedSdf = sdf
 //      .withWatermark("timestamp", "1 hours")
