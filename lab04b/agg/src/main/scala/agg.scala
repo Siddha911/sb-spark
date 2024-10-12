@@ -44,16 +44,16 @@ object agg {
       .format("kafka")
       .options(kafkaParams)
       .load
-      .select(col("value").cast("string").alias("value"))
-      .select(from_json(col("value"), schema).alias("data"))
-      .select(
-        col("data.event_type").alias("event_type"),
-        col("data.category").alias("category"),
-        col("data.item_id").alias("item_id"),
-        col("data.item_price").alias("item_price"),
-        col("data.uid").alias("uid"),
-        col("data.timestamp").alias("timestamp").cast("timestamp")
-      )
+//      .select(col("value").cast("string").alias("value"))
+//      .select(from_json(col("value"), schema).alias("data"))
+//      .select(
+//        col("data.event_type").alias("event_type"),
+//        col("data.category").alias("category"),
+//        col("data.item_id").alias("item_id"),
+//        col("data.item_price").alias("item_price"),
+//        col("data.uid").alias("uid"),
+//        col("data.timestamp").alias("timestamp").cast("timestamp")
+//      )
 
     val groupedSdf = sdf
 //      .withWatermark("timestamp", "1 hours")
