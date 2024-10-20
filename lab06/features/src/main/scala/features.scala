@@ -55,7 +55,7 @@ object features {
       .select(userByPeriod("uid"), col("web_fraction_work_hours"), col("web_fractiob_evening_hours"))
 
     val newWebLogs = rawWebLogs
-      .withColumn("host", lower(callUDF("parse_url", $"url", lit("HOST"))))
+      .withColumn("host", lower(callUDF("parse_url", $"visit.url", lit("HOST"))))
       .withColumn("domain", regexp_replace($"host", "www.", ""))
 
     val topDomains = newWebLogs
