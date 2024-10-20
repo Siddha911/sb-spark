@@ -27,12 +27,14 @@ object features {
       .groupBy(col("uid"))
       .pivot("weekday")
       .count
+      .na.fill(0)
 
     val usersByHours = rawWebLogs
       .withColumn("hour", concat(lit("web_hour_"), lower(date_format(col("date"), "H"))))
       .groupBy(col("uid"))
       .pivot("hour")
       .count
+      .na.fill(0)
 
     val totalVisitsByUser = rawWebLogs
       .groupBy(col("uid"))
@@ -41,7 +43,7 @@ object features {
     val userByPeriod = rawWebLogs
       .withColumn("period", lower(date_format(col("date"), "H")).cast(IntegerType))
       .withColumn("period", (when(col("period") < 18 && col("period") >= 9, "web_fraction_work_hours")
-        .when(col("period") < 24 && col("period") >= 18, "web_fractiob_evening_hours")
+        .when(col("period") < 24 && col("period") >= 18, "web_fraction_evening_hours")
         .otherwise(null)))
       .na.drop()
       .groupBy("uid")
@@ -51,8 +53,9 @@ object features {
     val userByPeriodRate = totalVisitsByUser
       .join(userByPeriod, "uid")
       .withColumn("web_fraction_work_hours", col("web_fraction_work_hours") / col("count"))
-      .withColumn("web_fractiob_evening_hours", col("web_fractiob_evening_hours") / col("count"))
-      .select(userByPeriod("uid"), col("web_fraction_work_hours"), col("web_fractiob_evening_hours"))
+      .withColumn("web_fraction_evening_hours", col("web_fraction_evening_hours") / col("count"))
+      .select(userByPeriod("uid"), col("web_fraction_work_hours"), col("web_fraction_evening_hours"))
+      .na.fill(0)
 
     val newWebLogs = rawWebLogs
       .withColumn("host", lower(callUDF("parse_url", $"visit.url", lit("HOST"))))
