@@ -21,7 +21,7 @@ object test {
     })
 
     val spark = SparkSession.builder()
-      .appName("lab07test")
+      .appName("lab08")
       .getOrCreate()
 
     val test_model_path : String = spark.sparkContext.getConf.get("spark.train.test_model_path")
